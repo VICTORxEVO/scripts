@@ -13,11 +13,11 @@ storage=$(du -sh "$path" | tr '\t' ' ' | cut -d ' ' -f 1)
 
 if [ -z "$snap_path" ]
 then
-    echo "sclean: ${RED}Snapshots directory not found${END}"
+    echo -e "sclean: ${RED}Snapshots directory not found${END}"
     exit 100
 elif [ -z "$(ls "$snap_path")" ]
 then
-    echo "sclean: ${YELLOW}Snapshots directory is empty, nothing to be cleaned${END}"
+    echo -e "sclean: ${YELLOW}Snapshots directory is empty, nothing to be cleaned${END}"
     exit 1
 fi
 
