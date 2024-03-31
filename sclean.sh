@@ -7,7 +7,7 @@ END='\033[0m'
 
 path="/nfs/sgoinfre/goinfre/Perso/$USER"
 
-snap_path=$(find "$path" -type d -name Snapshots)
+snap_path=$(find "$path" -type d -name "Snapshots")
 
 storage=$(du -sh "$path" | tr '\t' ' ' | cut -d ' ' -f 1)
 
@@ -21,14 +21,15 @@ then
     exit 1
 fi
 
-echo -e "${RED}Before: ${storage}${END}"
-sleep 0.8
+echo -e "${RED}Before: ${storage}${END}\n"
+sleep 0.7
 
-echo -e "${YELLOW}Cleaning....${END}"
+echo -e "${YELLOW}Cleaning....${END}\n"
 
 rm -f "$snap_path"/*
-sleep 2
+sleep 2.2
 
 echo -e "${GREEN}After: ${storage}${END}"
 sleep 0.1
 
+exit 0
