@@ -7,9 +7,9 @@ END='\033[0m'
 
 path="/nfs/sgoinfre/goinfre/Perso/$USER"
 
-snap_path=$(find "$path" -type d -name "Snapshots")
+snap_path=$(find "$path" -type d -name "Snapshots" 2>/dev/null)
 
-storage=$(du -sh "$path" | tr '\t' ' ' | cut -d ' ' -f 1)
+storage=$(du -sh "$path" 2>/dev/null | tr '\t' ' ' | cut -d ' ' -f 1)
 
 if [ -z "$snap_path" ]
 then
