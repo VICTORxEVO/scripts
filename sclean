@@ -7,11 +7,11 @@ END='\033[0m'
 
 path="/nfs/sgoinfre/goinfre/Perso/$USER"
 
-snap_path=$(find "$path" -type d -name "Snapshots" 2>/dev/null)
-
 storage=$(du -sh "$path" 2>/dev/null | tr '\t' ' ' | cut -d ' ' -f 1)
 
-if [ -z "$snap_path" ]
+snap_path=$(find "$path" -type d -name "Snapshots" 2>/dev/null)
+
+if [ $? ];
 then
     echo -e "sclean: ${RED}Snapshots directory not found${END}"
     exit 100

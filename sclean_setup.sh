@@ -13,13 +13,10 @@ shell_dir=".$(echo "$SHELL" | rev | cut -d '/' -f 1 | rev)rc"
 
 mkdir  "$bin_dir" 2> /dev/null 
 
-if $?;
+if [ $(echo $?) -ne 0 ] && command -v sclean > /dev/null 2>&1;
 then
-    if command -v sclean > /dev/null 2>&1;
-    then
-        echo -e "sclean_setup: ${YELLOW}sclean command already exist${END}"
-        exit 10
-    fi
+    echo -e "sclean_setup: ${YELLOW}sclean command already exist${END}"
+    exit 10
 fi
 echo -e "${YELLOW}Instaling....${END}"
 
