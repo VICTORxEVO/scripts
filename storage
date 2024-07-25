@@ -1,0 +1,1 @@
+du -sh /nfs/sgoinfre/goinfre/Perso/ysbai-jo | tr '\t' ' ' | tr '/' ' ' | cut -d ' ' -f 1,4,7

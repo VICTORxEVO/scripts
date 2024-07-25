@@ -1,35 +1,18 @@
 #!/bin/bash
 
-RED='\033[0;31m'
-GREEN='\033[0;32m'
-YELLOW='\033[0;33m'
-END='\033[0m'
 
-path="/nfs/sgoinfre/goinfre/Perso/$USER"
+du -sh /nfs/sgoinfre/goinfre/Perso/ysbai-jo | awk '{printf ("\033[31mBefore Cleaning: %s\033[0m\n\n", $1)}'
 
-storage=$(du -sh "$path" 2>/dev/null | tr '\t' ' ' | cut -d ' ' -f 1)
+sleep 1
 
-snap_path=$(find "$path" -type d -name "Snapshots" 2>/dev/null)
+awk 'BEGIN {printf ("\033[33mLoading...\033[0m\n\n")}'
 
-if [ $? ];
-then
-    echo -e "sclean: ${RED}Snapshots directory not found${END}"
-    exit 100
-elif [ -z "$(ls "$snap_path")" ]
-then
-    echo -e "sclean: ${YELLOW}Snapshots directory is empty, nothing to be cleaned${END}"
-    exit 1
-fi
+rm -f /nfs/sgoinfre/goinfre/Perso/ysbai-jo/THE\ OS/Snapshots/*
 
-echo -e "${RED}Before: ${storage}${END}\n"
-sleep 0.7
+sleep 2
 
-echo -e "${YELLOW}Cleaning....${END}\n"
+du -sh /nfs/sgoinfre/goinfre/Perso/ysbai-jo | awk '{printf ("\033[32mAfter Cleaning: %s\033[0m\n\n", $1)}'
 
-rm -f "$snap_path"/*
-sleep 2.2
+#sleep 3
 
-echo -e "${GREEN}After: ${storage}${END}"
-sleep 0.1
-
-exit 0
+#slock
