@@ -98,4 +98,4 @@ echo -e "${GREEN}copying...$END"
 echo -e "from\t\"${localpath}\n"
 echo -e "to  \t\"${vmpath}\""
 
-# scp ${option} os@${ip}:${vmpath} ${localpath}
+scp ${option} os@${ip}:${vmpath} ${localpath}
