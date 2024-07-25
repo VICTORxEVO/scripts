@@ -2,6 +2,7 @@
 
 RED='\033[31m'
 END='\033[0m'
+GREEN='\033[32m'
 YELLOW='\033[33m'
 localpath="/nfs/homes/ysbai-jo/"
 l_path="Downloads"
@@ -11,7 +12,10 @@ option=""
 ip="10.13.13.13"
 flag=false
 
-
+if [ $# -eq 0 ];
+then
+	localpath+="$l_path"
+fi
 
 function is_valid_ip() {
     local ip=$1
@@ -47,7 +51,7 @@ while getopts ":v:l:i:r:" opt; do
 		else
 			localpath+="$l_path"
 		fi
-		
+
 		if ! [ -d $localpath ];
 		then
 			echo -e "${YELLOW}path \"$localpath\" not found !${END}"
@@ -90,10 +94,8 @@ then
 	fi
 fi
 
-echo "option $option"
-echo "ip $ip"
-echo "vmpath $vmpath"
-echo "local path $localpath"
-
+echo -e "${GREEN}copying...$END"
+echo -e "from\t\"${localpath}\n"
+echo -e "to  \t\"${vmpath}\""
 
 # scp ${option} os@${ip}:${vmpath} ${localpath}
