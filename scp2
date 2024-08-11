@@ -34,13 +34,13 @@ function is_valid_ip() {
 }
 
 
-while getopts ":v:l:i:r:" opt; do
+while getopts ":v:l:i:r" opt; do
 	case ${opt} in
 	v)
 		v_path="$OPTARG"
+		localpath+="$l_path"
 		;;
-	l | r)
-		option="-r"
+	l)
 		l_path="$OPTARG"
 		if [[ "$l_path" == /* ]];
 		then
@@ -61,6 +61,9 @@ while getopts ":v:l:i:r:" opt; do
 	i)
 		flag=true
 		ip="$OPTARG"
+		;;
+	r)
+		option="-r"
 		;;
 	\?)
 		echo -e "${RED}invalid option \"-$OPTARG\"${END}"
@@ -95,7 +98,14 @@ then
 fi
 
 echo -e "${GREEN}copying...$END"
-echo -e "from\t\"${localpath}\n"
-echo -e "to  \t\"${vmpath}\""
+echo -e "from\t\"${vmpath}\n"
+echo -en "to  \t\"${localpath}\""
+
+if [ "$option" == "-r" ];
+then
+	echo " with option $option "
+else
+	echo -e "\n"
+fi
 
 scp ${option} os@${ip}:${vmpath} ${localpath}
