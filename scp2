@@ -164,9 +164,6 @@ then
 else
 	echo -e "\n"
 fi
-echo "ip is $ip"
 
-echo "promot is $promot"
 
-exit 0
 scp ${option} "${promot}@${ip}:${vmpath}" "${localpath}"
