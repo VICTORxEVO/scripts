@@ -87,7 +87,7 @@ lpath="${local_home}/${input_lpath}"
 while getopts ":v:l:h:i:ra" opt; do
 	case ${opt} in
 	a)
-		vpath="${vmpath}/Anime/*"
+		vpath="${vm_home}/Anime/*"
 		break
 		;;
 	v)
