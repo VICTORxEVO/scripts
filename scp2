@@ -7,11 +7,10 @@ RED='\033[31m'
 END='\033[0m'
 GREEN='\033[32m'
 YELLOW='\033[33m'
-localpath="${HOME}/"
-l_path="Downloads"
-v_path="SCP_DIR/*"
+local_home="${HOME}"
+input_lpath="Downloads"
+input_vpath="SCP_DIR/*"
 option=""
-
 
 function is_valid_ip() 
 {
@@ -47,7 +46,7 @@ function update_ip()
 function update_vmhome()
 {
 	local new_home=$1
-	sed -i "2s|.*|vmpath=\"$new_home\"|" "$config_file"
+	sed -i "2s|.*|vm_home=\"$new_home\"|" "$config_file"
 }
 
 function setup() 
@@ -65,16 +64,15 @@ function setup()
 
 		is_valid_ip "$ip_read"
 
-		localpath+="$l_path"
 		echo "ip=\"${ip_read}\"" > "$config_file"
-		echo "vmpath=\"${vmpath_read}\"" >> "$config_file"
+		echo "vm_home=\"${vmpath_read}\"" >> "$config_file"
 	fi
 }
 
 setup #program start from here
 
 source "$config_file"
-if [ -z "$ip" ] || [ -z "$vmpath" ];
+if [ -z "$ip" ] || [ -z "$vm_home" ];
 then
 	echo -e "scp2: ${RED}bad config file !!${END}"
 	rm -f $config_file
@@ -82,42 +80,41 @@ then
 	source "$config_file"
 fi
 
-if [ $# -eq 0 ];
-then
-	localpath+="$l_path"
-fi
+
+vpath="${vm_home}/${input_vpath}"
+lpath="${local_home}/${input_lpath}"
 
 while getopts ":v:l:h:i:ra" opt; do
 	case ${opt} in
 	a)
-		v_path="Anime/*"
+		vpath="${vmpath}/Anime/*"
 		break
 		;;
 	v)
-		v_path="$OPTARG"
-		localpath+="$l_path"
+		vpath="${vm_home}/${OPTARG}"
 		;;
 	l)
-		l_path="$OPTARG"
-		if [[ "$l_path" == /* ]];
+		input_lpath="$OPTARG"
+		if [[ "$input_lpath" == /* ]];
 		then
-			localpath="$l_path"
-		elif [[ $l_path == .* ]];
+			lpath="${input_lpath}"
+		elif [[ $input_lpath == .* ]];
 		then
-			localpath=$(realpath "$l_path")
+			lpath=$(realpath "$input_lpath")
 		else
-			localpath+="$l_path"
+			lpath="${local_home}/${input_lpath}"
 		fi
 
-		if ! [ -d $localpath ];
+		if ! [ -d "$lpath" ];
 		then
-			echo -e "${YELLOW}path \"$localpath\" not found !${END}"
+			echo -e "${YELLOW}path \"$lpath\" not found !${END}"
 			exit 3;
 		fi
 		;;
 	h)
 		update_vmhome "$OPTARG"
-		vmpath="$OPTARG"
+		vm_home="$OPTARG"
+		vpath="${vm_home}/${input_vpath}"
 		;;
 	i)
 		is_valid_ip "$OPTARG"
@@ -134,7 +131,7 @@ while getopts ":v:l:h:i:ra" opt; do
 	:)
 		if [ $OPTARG == "r" ];
 		then
-			echo -e "scp2: ${YELLOW}usage: -r [localpath]${END}"
+			echo -e "scp2: ${YELLOW}usage: -r [local_home]${END}"
 		elif [ $OPTARG == "i" ];
 		then
 			echo -e "scp2: usage: -i [__ip_address]"
@@ -149,14 +146,12 @@ done
 shift $((OPTIND - 1))
 
 is_valid_ip "$ip"
-promot=$(basename "$vmpath")
-vmpath+="/$v_path"
-
+promot=$(basename "$vm_home")
 
 
 echo -e "${GREEN}copying...$END"
-echo -e "from\t\"${vmpath}\"\n"
-echo -en "to  \t\"${localpath}\""
+echo -e "from\t\"${vpath}\"\n"
+echo -en "to  \t\"${lpath}\""
 
 if [ "$option" == "-r" ];
 then
@@ -166,4 +161,4 @@ else
 fi
 
 
-scp ${option} "${promot}@${ip}:${vmpath}" "${localpath}"
+scp ${option} "${promot}@${ip}:${vpath}" "${lpath}"
