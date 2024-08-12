@@ -1,41 +1,98 @@
 #!/bin/bash
 
+config_dir="$HOME/.config/scp2"
+config_file="$config_dir/scp2.conf"
+
 RED='\033[31m'
 END='\033[0m'
 GREEN='\033[32m'
 YELLOW='\033[33m'
-localpath="/nfs/homes/ysbai-jo/"
+localpath="${HOME}/"
 l_path="Downloads"
 v_path="SCP_DIR/*"
-vmpath="/home/os/"
 option=""
-ip="10.13.13.13"
-flag=false
+
+
+function is_valid_ip() 
+{
+    local ip=$1
+    local valid_ip_regex='^([0-9]{1,3}\.){3}[0-9]{1,3}$'
+	local res=0
+    if [[ $ip =~ $valid_ip_regex ]];
+	then
+        IFS='.' read -r -a octets <<< "$ip"
+        for octet in "${octets[@]}";
+		do
+            if (( octet < 0 || octet > 255 )); then
+                res=1
+				break
+            fi
+        done
+    else
+        res=1
+    fi
+	if [ $res -eq 1 ];
+	then
+		echo -e "scp2: ${RED}invalid ip address \"$ip\"${END}"
+		exit 10
+	fi
+}
+
+function update_ip() 
+{
+    local new_ip=$1
+    sed -i "1s|.*|ip=\"$new_ip\"|" "$config_file"
+}
+
+function update_vmhome()
+{
+	local new_home=$1
+	sed -i "2s|.*|vmpath=\"$new_home\"|" "$config_file"
+}
+
+function setup() 
+{
+	if [ ! -d "$config_dir" ];
+	then
+		mkdir -p "$config_dir"
+	fi
+
+	if [ ! -f "$config_file" ];
+	then
+		echo -e "${YELLOW}building config file...${END}"
+		read -rp "Enter virtual machine ip address: " ip_read
+		read -rp "Enter home path of virtual machine: " vmpath_read
+
+		is_valid_ip "$ip_read"
+
+		localpath+="$l_path"
+		echo "ip=\"${ip_read}\"" > "$config_file"
+		echo "vmpath=\"${vmpath_read}\"" >> "$config_file"
+	fi
+}
+
+setup #program start from here
+
+source "$config_file"
+if [ -z "$ip" ] || [ -z "$vmpath" ];
+then
+	echo -e "scp2: ${RED}bad config file !!${END}"
+	rm -f $config_file
+	setup
+	source "$config_file"
+fi
 
 if [ $# -eq 0 ];
 then
 	localpath+="$l_path"
 fi
 
-function is_valid_ip() {
-    local ip=$1
-    local valid_ip_regex='^([0-9]{1,3}\.){3}[0-9]{1,3}$'
-    if [[ $ip =~ $valid_ip_regex ]]; then
-        IFS='.' read -r -a octets <<< "$ip"
-        for octet in "${octets[@]}"; do
-            if (( octet < 0 || octet > 255 )); then
-                return 1
-            fi
-        done
-        return 0
-    else
-        return 1
-    fi
-}
-
-
-while getopts ":v:l:i:r" opt; do
+while getopts ":v:l:h:i:ra" opt; do
 	case ${opt} in
+	a)
+		v_path="Anime/*"
+		break
+		;;
 	v)
 		v_path="$OPTARG"
 		localpath+="$l_path"
@@ -58,9 +115,14 @@ while getopts ":v:l:i:r" opt; do
 			exit 3;
 		fi
 		;;
+	h)
+		update_vmhome "$OPTARG"
+		vmpath="$OPTARG"
+		;;
 	i)
-		flag=true
+		is_valid_ip "$OPTARG"
 		ip="$OPTARG"
+		update_ip "$OPTARG"
 		;;
 	r)
 		option="-r"
@@ -86,19 +148,14 @@ done
 
 shift $((OPTIND - 1))
 
-vmpath+="$v_path"
+is_valid_ip "$ip"
+promot=$(basename "$vmpath")
+vmpath+="/$v_path"
 
-if [ "$flag" == "true" ];
-then
-	if ! is_valid_ip "$ip";
-	then
-		echo -e "scp2: ${RED}invalid ip address \"$ip\"${END}"
-		exit 10
-	fi
-fi
+
 
 echo -e "${GREEN}copying...$END"
-echo -e "from\t\"${vmpath}\n"
+echo -e "from\t\"${vmpath}\"\n"
 echo -en "to  \t\"${localpath}\""
 
 if [ "$option" == "-r" ];
@@ -107,5 +164,9 @@ then
 else
 	echo -e "\n"
 fi
+echo "ip is $ip"
 
-scp ${option} os@${ip}:${vmpath} ${localpath}
+echo "promot is $promot"
+
+exit 0
+scp ${option} "${promot}@${ip}:${vmpath}" "${localpath}"
