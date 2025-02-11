@@ -59,7 +59,7 @@ function setup()
 	if [ ! -f "$config_file" ];
 	then
 		echo -e "${YELLOW}building config file...${END}"
-		read -rp "Enter virtual machine ip address: " ip_read
+		read -rp "Enter Network Pc ip address: " ip_read
 		read -rp "Enter home path of virtual machine: " vmpath_read
 
 		is_valid_ip "$ip_read"
